@@ -1,0 +1,24 @@
+{
+    "entities": {
+        "POP_GEN1": {
+            "type_tag": "POP_GEN1",
+            "display_name": "Villager",
+            "base_stats": {
+                "strength": 5,
+                "dexterity": 5,
+                "intelligence": 5,
+                "vitality": 10,
+                "perception": 5
+            },
+            "sprites": {
+                "idle": "spr_pop_idle",
+                "walk": "spr_pop_walk",
+                "action": "spr_pop_action",
+                "dead": "spr_pop_dead"
+            },
+            "max_carry_weight": 20,
+            "movement_speed": 4,
+            "vision_range": 200
+        }
+    }
+}

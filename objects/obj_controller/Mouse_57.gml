@@ -154,11 +154,11 @@ if (_clicked_interactive_object != noone) {
                         // --- Assign all relevant target variables to the pop ---
                         target_interaction_object_id = _target_object_for_this_command;
                         target_interaction_slot_index = _slot_index; // Still used for legacy compatibility
-                        target_interaction_type_tag = _slot_details.type_tag;
+                        target_interaction_type_tag = _slot_details[$ "type_tag"];
                         // Store the actual interaction point instance ID for robust slot management
                         target_interaction_point_id = _free_point_id; // (Optional: add this variable for clarity)
-                        travel_point_x = _slot_details.x;
-                        travel_point_y = _slot_details.y;
+                        travel_point_x = _slot_details[$ "x"];
+                        travel_point_y = _slot_details[$ "y"];
                         // Set state to FORAGING (or other, based on object type)
                         state = EntityState.FORAGING;
                         previous_state = EntityState.FORAGING;
@@ -231,10 +231,10 @@ if (_clicked_interactive_object != noone) {
                         // --- Assign all relevant target variables to the pop ---
                         target_interaction_object_id = _target_object_for_this_command;
                         target_interaction_slot_index = _slot_index;
-                        target_interaction_type_tag = _slot_details.type_tag;
+                        target_interaction_type_tag = _slot_details[$ "type_tag"];
                         target_interaction_point_id = _point_id;
-                        travel_point_x = _slot_details.x;
-                        travel_point_y = _slot_details.y;
+                        travel_point_x = _slot_details[$ "x"];
+                        travel_point_y = _slot_details[$ "y"];
                         state = EntityState.FORAGING;
                         previous_state = EntityState.FORAGING;
                         last_foraged_target_id = _target_object_for_this_command;
@@ -320,7 +320,7 @@ if (_num_selected_for_move > 0) {
                 var _slot = _formation_slots[i]; 
                 if (instance_exists(_pop_id)) { 
                     with (_pop_id) {
-                        travel_point_x = _slot.x; travel_point_y = _slot.y;
+                        travel_point_x = _slot[$ "x"]; travel_point_y = _slot[$ "y"];
                         has_arrived = false; state = EntityState.COMMANDED;
                         order_id = global.order_counter; is_waiting = false;
                     }

@@ -27,8 +27,8 @@ if (variable_instance_exists(id, "click_start_world_x")) {
 #region 0.1 Imports & Cached Locals
 var _gui_mx = device_mouse_x_to_gui(0);
 var _gui_my = device_mouse_y_to_gui(0);
-var _world_mx = mouse_x; 
-var _world_my = mouse_y; 
+var _world_mx = device_mouse_x(0); 
+var _world_my = device_mouse_y(0); 
 
 var _drag_threshold = 5; 
 #endregion

@@ -1,123 +1,121 @@
 /// scr_custom_functions.gml
 ///
 /// Purpose:
-///   This script file acts as a container for various custom utility functions
-///   that don't belong to a more specific category or are too small to warrant
-///   their own individual script files.
+///   A collection of general-purpose utility functions accessible throughout the project.
+///   These functions handle common tasks like item name conversion, deep cloning, etc.
 ///
 /// Metadata:
-///   Summary:       Collection of miscellaneous utility functions.
-///   Usage:         Call specific functions from this script as needed by other game systems.
-///   Parameters:    See individual functions.
-///   Returns:       See individual functions.
-///   Tags:          [utility][collection]
-///   Version:       1.0 - 2025-05-23
+///   Summary:       Custom utility functions for diverse project needs.
+///   Usage:         Include this script once and call functions as needed.
+///   Parameters:    Varies by function.
+///   Returns:       Varies by function.
+///   Tags:          [utility][functions][custom][general]
+///   Version:       1.0 — 2025-05-22
 ///   Dependencies:  None
+///   Created:       2025-05-22
+///   Modified:      2025-05-22
+///
 
 // =========================================================================
-// 0. IMPORTS & CACHES
+// 1. DATA TYPE MANIPULATION
 // =========================================================================
-#region 0.1 Imports & Cached Locals
-// No global imports/caches for this collection script.
-#endregion
-
-// =========================================================================
-// 1. VALIDATION & EARLY RETURNS (N/A at script level)
-// =========================================================================
-// (Validation is handled within individual functions)
-
-// =========================================================================
-// 2. CONFIGURATION & CONSTANTS (N/A at script level)
-// =========================================================================
-// (Constants are handled within individual functions if needed)
-
-// =========================================================================
-// 3. INITIALIZATION & STATE SETUP (N/A at script level)
-// =========================================================================
-// (Initialization is handled within individual functions if needed)
-
-// =========================================================================
-// 4. CORE LOGIC (Individual Functions)
-// =========================================================================
-
-#region 4.1 ds_list_to_array
+#region 1.1 ds_list_to_array
 /// ---
 /// ds_list_to_array(_list)
 /// ---
 /// Purpose:
-///   Converts a ds_list into a standard GML array.
+///   Converts a GameMaker ds_list into a standard GML array.
 ///
-/// Metadata (for function):
-///   Summary:       Converts a ds_list to an array.
-///   Usage:         Utility function for data structure operations.
-///                  e.g., var _my_array = ds_list_to_array(my_ds_list);
-///   Parameters:    _list : Id.DsList — The ds_list to convert.
-///   Returns:       Array<Any> — A GML array containing the elements of the ds_list. Returns an empty array if input is invalid.
-///   Tags:          [utility][ds_list][array][conversion]
-///   Version:       1.1 - 2025-05-23 // Integrated into scr_custom_functions and updated header
-///   Dependencies:  None
-
+/// Parameters:
+///   _list : ds_list_id — The ID of the list to convert.
+///
+/// Returns:
+///   Array — A standard GML array containing the list elements.
+///
 function ds_list_to_array(_list) {
-    // =========================================================================
-    // 0. IMPORTS & CACHES (Function Specific)
-    // =========================================================================
-    #region 0.1 Imports & Cached Locals
-    // No specific imports/caches needed for this function.
-    #endregion
-
-    // =========================================================================
-    // 1. VALIDATION & EARLY RETURNS (Function Specific)
-    // =========================================================================
-    #region 1.1 Parameter Validation
-    // Check if the input is a valid ds_list
-    if (!ds_exists(_list, ds_type_list)) {
-        show_debug_message("ERROR: ds_list_to_array() — Invalid _list parameter: not a valid ds_list.");
-        return []; // Return an empty array if the input is invalid
-    }
-    #endregion
-
-    // =========================================================================
-    // 2. CONFIGURATION & CONSTANTS (Function Specific)
-    // =========================================================================
-    #region 2.1 Local Constants
-    // No local constants needed.
-    #endregion
-
-    // =========================================================================
-    // 3. INITIALIZATION & STATE SETUP (Function Specific)
-    // =========================================================================
-    #region 3.1 One-Time Setup / State Variables
-    // No state setup needed.
-    #endregion
-
-    // =========================================================================
-    // 4. CORE LOGIC (Function Specific)
-    // =========================================================================
-    #region 4.1 Main Behavior / Utility Logic
-    // Create an array to store the elements of the ds_list
-    var _array = [];
-
-    // Loop through the ds_list and copy each element into the array
-    // LEARNING POINT: ds_list_size() gives the number of items in a ds_list.
-    // ds_list_find_value() retrieves an item at a specific index (0-based).
+    if (!ds_exists(_list, ds_type_list)) return [];
+    var _arr = array_create(ds_list_size(_list));
     for (var i = 0; i < ds_list_size(_list); i++) {
-        array_push(_array, ds_list_find_value(_list, i));
+        _arr[i] = _list[| i];
     }
-    #endregion
+    return _arr;
+}
+#endregion
 
-    // =========================================================================
-    // 5. CLEANUP & RETURN (Function Specific)
-    // =========================================================================
-    #region 5.1 Cleanup & Return Value
-    return _array; // Return the resulting array
-    #endregion
-    
-    // =========================================================================
-    // 6. DEBUG/PROFILING (Optional - Function Specific)
-    // =========================================================================
-    #region 6.1 Debug & Profile Hooks
-    // No specific debug hooks for this function.
-    #endregion
+// =========================================================================
+// 2. ITEM & INVENTORY UTILITIES
+// =========================================================================
+#region 2.1 get_item_name_from_enum
+/// ---
+/// get_item_name_from_enum(_enum)
+/// ---
+/// Purpose:
+///   Converts an item ID enum value into its corresponding human-readable string name.
+///
+/// Parameters:
+///   _enum : enum.Item — The item's ID enum value.
+///
+/// Returns:
+///   String — The item's name (e.g., "Wooden Log", "Stone Shard").
+///
+function get_item_name_from_enum(_enum) {
+    if (!variable_global_exists("ItemData")) return "Unknown Item";
+    // Assuming global.ItemData[? _enum][? "name"] structure
+    if (ds_map_exists(global.ItemData, _enum)) {
+        var _data = global.ItemData[? _enum];
+        if (ds_exists(_data, ds_type_map) && ds_map_exists(_data, "name")) {
+            return _data[? "name"];
+        }
+    }
+    return "Item #" + string(_enum);
+}
+#endregion
+
+// =========================================================================
+// 3. MATH & COORDINATE UTILITIES
+// =========================================================================
+#region 3.1 wrap
+/// ---
+/// wrap(_val, _min, _max)
+/// ---
+/// Purpose:
+///   Wraps a value within a circular range. Useful for rotations or looping indices.
+///
+/// Parameters:
+///   _val : Real — The input value.
+///   _min : Real — The lower bound.
+///   _max : Real — The upper bound.
+///
+/// Returns:
+///   Real — The wrapped value.
+///
+function wrap(_val, _min, _max) {
+    var _range = _max - _min;
+    while (_val < _min) _val += _range;
+    while (_val >= _max) _val -= _range;
+    return _val;
+}
+#endregion
+
+// =========================================================================
+// 4. MISC UTILITIES
+// =========================================================================
+#region 4.1 show_debug_message_once
+/// ---
+/// show_debug_message_once(_msg)
+/// ---
+/// Purpose:
+///   Prints a debug message to the console only once per session per unique message.
+///
+/// Parameters:
+///   _msg : string — The message to log.
+///
+function show_debug_message_once(_msg) {
+    static _logged_messages = {};
+    if (!variable_struct_exists(_logged_messages, _msg)) {
+        _logged_messages[$ _msg] = true;
+        show_debug_message(_msg);
+    }
 }
 #endregion
 

@@ -80,7 +80,7 @@ if (_show_details_text && variable_instance_exists(id, "pop_name")) {
     var _name_y_offset_from_top = 8; 
     var _text_y = _y_pop - (_scaled_sprite_h * 0.5) - _name_y_offset_from_top; 
 
-    draw_set_font(fnt_pop_displayname); 
+    draw_set_font(fnt_state); 
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom); 
 

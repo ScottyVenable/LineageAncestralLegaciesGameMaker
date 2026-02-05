@@ -12,8 +12,8 @@
 // =========================================================================
 #region 1.1 Draw Formation Slot Preview
 if (keyboard_check(vk_control)) { // Only draw preview if Ctrl is currently held
-    var _preview_center_x_room = mouse_x;
-    var _preview_center_y_room = mouse_y;
+    var _preview_center_x_room = device_mouse_x(0);
+    var _preview_center_y_room = device_mouse_y(0);
     var _selected_pop_count_for_preview = 0;
     with (obj_pop) {
         if (selected) { _selected_pop_count_for_preview++; }

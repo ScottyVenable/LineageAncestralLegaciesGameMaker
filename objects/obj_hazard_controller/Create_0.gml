@@ -18,6 +18,11 @@
 // self.staticProfileData = undefined; // Injected by spawn_single_instance
 // self.profileIDStringRef = undefined; // Injected by spawn_single_instance
 
+// --- INJECTED VARIABLES (Initialized to undefined to prevent IDE errors) ---
+staticProfileData = undefined;
+profileIDStringRef = undefined;
+// --------------------------------------------------------------------------
+
 // --- Method to initialize the instance based on the provided entity_data ---
 /// @function initialize_from_profile()
 /// @description Initializes the hazard's properties using the self.staticProfileData struct.
@@ -36,83 +41,94 @@ initialize_from_profile = function() {
     var _profile = self.staticProfileData;
     var _profile_id = self.profileIDStringRef;
 
-    show_debug_message($"Initializing Hazard from Profile: '{_profile_id}' (Object: {_profile.object_to_spawn})");
+    show_debug_message($"Initializing Hazard from Profile: '{_profile_id}' (Object: {_profile[$ "object_to_spawn"]})");
 
     // I. Core Identification & Behavior
-    self.display_name = variable_struct_exists(_profile, "display_name") ? _profile.display_name : "Unknown Hazard";
-    self.description = variable_struct_exists(_profile, "description") ? _profile.description : "A dangerous area or event.";
-    self.hazard_category_profile_path = variable_struct_exists(_profile, "hazard_category_profile_path") ? _profile.hazard_category_profile_path : undefined;
-    self.tags = variable_struct_exists(_profile, "tags") && is_array(_profile.tags) ? array_clone(_profile.tags) : [];
-    self.is_static_feature = variable_struct_exists(_profile, "is_static_feature") ? _profile.is_static_feature : false;
-    self.is_event_driven = variable_struct_exists(_profile, "is_event_driven") ? _profile.is_event_driven : false;
+    self.display_name = variable_struct_exists(_profile, "display_name") ? _profile[$ "display_name"] : "Unknown Hazard";
+    self.description = variable_struct_exists(_profile, "description") ? _profile[$ "description"] : "A dangerous area or event.";
+    self.hazard_category_profile_path = variable_struct_exists(_profile, "hazard_category_profile_path") ? _profile[$ "hazard_category_profile_path"] : undefined;
+    self.tags = variable_struct_exists(_profile, "tags") && is_array(_profile[$ "tags"]) ? scr_struct_clone(_profile[$ "tags"]) : [];
+    self.is_static_feature = variable_struct_exists(_profile, "is_static_feature") ? _profile[$ "is_static_feature"] : false;
+    self.is_event_driven = variable_struct_exists(_profile, "is_event_driven") ? _profile[$ "is_event_driven"] : false;
 
     // II. Damage & Effects on Entities (from effect_data struct or similar in profile)
-    var _effect_data = variable_struct_exists(_profile, "effect_data") && is_struct(_profile.effect_data) ? _profile.effect_data : {};
+    var _effect_data = variable_struct_exists(_profile, "effect_data") && is_struct(_profile[$ "effect_data"]) ? _profile[$ "effect_data"] : {};
 
-    self.damage_type_profile_path = variable_struct_exists(_effect_data, "damage_type_profile_path") ? _effect_data.damage_type_profile_path : undefined;
-    self.damage_on_enter_amount = variable_struct_exists(_effect_data, "damage_on_enter_amount") ? _effect_data.damage_on_enter_amount : 0;
-    self.damage_per_tick_amount = variable_struct_exists(_effect_data, "damage_per_tick_amount") ? _effect_data.damage_per_tick_amount : 0;
-    self.damage_tick_rate_seconds = variable_struct_exists(_effect_data, "damage_tick_rate_seconds") ? _effect_data.damage_tick_rate_seconds : 1.0;
-    self.status_effect_profile_paths_applied = variable_struct_exists(_effect_data, "status_effect_profile_paths_applied") && is_array(_effect_data.status_effect_profile_paths_applied) ? array_clone(_effect_data.status_effect_profile_paths_applied) : [];
-    self.force_applied_vector = variable_struct_exists(_effect_data, "force_applied_vector") && is_struct(_effect_data.force_applied_vector) ? scr_struct_clone(_effect_data.force_applied_vector) : { x: 0, y: 0 };
-    self.resource_drain_effects = variable_struct_exists(_effect_data, "resource_drain_effects") && is_array(_effect_data.resource_drain_effects) ? array_clone(_effect_data.resource_drain_effects) : []; // Array of {resource_profile_path, amount_per_tick}
-    self.can_damage_structures = variable_struct_exists(_effect_data, "can_damage_structures") ? _effect_data.can_damage_structures : false;
-    self.can_ignite_flammables = variable_struct_exists(_effect_data, "can_ignite_flammables") ? _effect_data.can_ignite_flammables : false;
+    self.damage_type_profile_path = variable_struct_exists(_effect_data, "damage_type_profile_path") ? _effect_data[$ "damage_type_profile_path"] : undefined;
+    
+    // Define damage_type_enum to silence IDE error. Logic to resolve profile_path to enum should govern this.
+    self.damage_type_enum = undefined; // TODO: Resolve damage_type_profile_path to an actual enum value if needed.
+
+    self.damage_on_enter_amount = variable_struct_exists(_effect_data, "damage_on_enter_amount") ? _effect_data[$ "damage_on_enter_amount"] : 0;
+    self.damage_per_tick_amount = variable_struct_exists(_effect_data, "damage_per_tick_amount") ? _effect_data[$ "damage_per_tick_amount"] : 0;
+    self.damage_tick_rate_seconds = variable_struct_exists(_effect_data, "damage_tick_rate_seconds") ? _effect_data[$ "damage_tick_rate_seconds"] : 1.0;
+    self.status_effect_profile_paths_applied = variable_struct_exists(_effect_data, "status_effect_profile_paths_applied") && is_array(_effect_data[$ "status_effect_profile_paths_applied"]) ? scr_struct_clone(_effect_data[$ "status_effect_profile_paths_applied"]) : [];
+    self.force_applied_vector = variable_struct_exists(_effect_data, "force_applied_vector") && is_struct(_effect_data[$ "force_applied_vector"]) ? scr_struct_clone(_effect_data[$ "force_applied_vector"]) : { x: 0, y: 0 };
+    self.resource_drain_effects = variable_struct_exists(_effect_data, "resource_drain_effects") && is_array(_effect_data[$ "resource_drain_effects"]) ? scr_struct_clone(_effect_data[$ "resource_drain_effects"]) : []; // Array of {resource_profile_path, amount_per_tick}
+    self.can_damage_structures = variable_struct_exists(_effect_data, "can_damage_structures") ? _effect_data[$ "can_damage_structures"] : false;
+    self.can_ignite_flammables = variable_struct_exists(_effect_data, "can_ignite_flammables") ? _effect_data[$ "can_ignite_flammables"] : false;
 
     // III. Area, Triggering, Duration & Persistence (from behavior_data struct or similar)
-    var _behavior_data = variable_struct_exists(_profile, "behavior_data") && is_struct(_profile.behavior_data) ? _profile.behavior_data : {};
+    var _behavior_data = variable_struct_exists(_profile, "behavior_data") && is_struct(_profile[$ "behavior_data"]) ? _profile[$ "behavior_data"] : {};
 
-    self.area_of_effect_shape_enum = variable_struct_exists(_behavior_data, "area_of_effect_shape_enum") ? _behavior_data.area_of_effect_shape_enum : undefined; // e.g., AreaShape.CIRCLE (ensure enum exists)
-    self.area_dimensions = variable_struct_exists(_behavior_data, "area_dimensions") && is_struct(_behavior_data.area_dimensions) ? scr_struct_clone(_behavior_data.area_dimensions) : { radius: 32 };
-    self.trigger_condition_enum = variable_struct_exists(_behavior_data, "trigger_condition_enum") ? _behavior_data.trigger_condition_enum : undefined; // e.g., HazardTrigger.ALWAYS_ACTIVE
-    self.trigger_radius_pixels = variable_struct_exists(_behavior_data, "trigger_radius_pixels") ? _behavior_data.trigger_radius_pixels : 0;
-    self.activation_delay_seconds = variable_struct_exists(_behavior_data, "activation_delay_seconds") ? _behavior_data.activation_delay_seconds : 0;
-    self.is_temporary = variable_struct_exists(_behavior_data, "is_temporary") ? _behavior_data.is_temporary : true;
-    self.lifespan_seconds_active = variable_struct_exists(_behavior_data, "lifespan_seconds_active") ? _behavior_data.lifespan_seconds_active : 10;
-    self.cooldown_seconds_after_deactivation = variable_struct_exists(_behavior_data, "cooldown_seconds_after_deactivation") ? _behavior_data.cooldown_seconds_after_deactivation : 0;
-    self.is_removable_by_player_action = variable_struct_exists(_behavior_data, "is_removable_by_player_action") ? _behavior_data.is_removable_by_player_action : false;
-    self.removal_requirements = variable_struct_exists(_behavior_data, "removal_requirements") && is_array(_behavior_data.removal_requirements) ? array_clone(_behavior_data.removal_requirements) : []; // Array of {item_profile_path, quantity} or {skill_profile_path, level}
+    self.area_of_effect_shape_enum = variable_struct_exists(_behavior_data, "area_of_effect_shape_enum") ? _behavior_data[$ "area_of_effect_shape_enum"] : undefined; // e.g., AreaShape.CIRCLE (ensure enum exists)
+    self.area_dimensions = variable_struct_exists(_behavior_data, "area_dimensions") && is_struct(_behavior_data[$ "area_dimensions"]) ? scr_struct_clone(_behavior_data[$ "area_dimensions"]) : { radius: 32 };
+    self.trigger_condition_enum = variable_struct_exists(_behavior_data, "trigger_condition_enum") ? _behavior_data[$ "trigger_condition_enum"] : undefined; // e.g., HazardTrigger.ALWAYS_ACTIVE
+    self.trigger_radius_pixels = variable_struct_exists(_behavior_data, "trigger_radius_pixels") ? _behavior_data[$ "trigger_radius_pixels"] : 0;
+    self.activation_delay_seconds = variable_struct_exists(_behavior_data, "activation_delay_seconds") ? _behavior_data[$ "activation_delay_seconds"] : 0;
+    self.is_temporary = variable_struct_exists(_behavior_data, "is_temporary") ? _behavior_data[$ "is_temporary"] : true;
+    self.lifespan_seconds_active = variable_struct_exists(_behavior_data, "lifespan_seconds_active") ? _behavior_data[$ "lifespan_seconds_active"] : 10;
+    self.cooldown_seconds_after_deactivation = variable_struct_exists(_behavior_data, "cooldown_seconds_after_deactivation") ? _behavior_data[$ "cooldown_seconds_after_deactivation"] : 0;
+    self.is_removable_by_player_action = variable_struct_exists(_behavior_data, "is_removable_by_player_action") ? _behavior_data[$ "is_removable_by_player_action"] : false;
+    self.removal_requirements = variable_struct_exists(_behavior_data, "removal_requirements") && is_array(_behavior_data[$ "removal_requirements"]) ? scr_struct_clone(_behavior_data[$ "removal_requirements"]) : []; // Array of {item_profile_path, quantity} or {skill_profile_path, level}
     
     // Spreading behavior (from spread_data struct or similar)
-    var _spread_data = variable_struct_exists(_profile, "spread_data") && is_struct(_profile.spread_data) ? _profile.spread_data : {};
-    self.is_spreading_hazard = variable_struct_exists(_spread_data, "is_spreading_hazard") ? _spread_data.is_spreading_hazard : false;
-    self.spread_chance_per_tick = variable_struct_exists(_spread_data, "spread_chance_per_tick") ? _spread_data.spread_chance_per_tick : 0.1;
-    self.spread_interval_seconds = variable_struct_exists(_spread_data, "spread_interval_seconds") ? _spread_data.spread_interval_seconds : 1.0;
-    self.max_spread_radius_or_tiles = variable_struct_exists(_spread_data, "max_spread_radius_or_tiles") ? _spread_data.max_spread_radius_or_tiles : 100;
-    self.spread_target_tags = variable_struct_exists(_spread_data, "spread_target_tags") && is_array(_spread_data.spread_target_tags) ? array_clone(_spread_data.spread_target_tags) : [];
-    self.spread_hazard_profile_path = variable_struct_exists(_spread_data, "spread_hazard_profile_path") ? _spread_data.spread_hazard_profile_path : self.profileIDStringRef; // Hazard may spread itself or a different one
+    var _spread_data = variable_struct_exists(_profile, "spread_data") && is_struct(_profile[$ "spread_data"]) ? _profile[$ "spread_data"] : {};
+    self.is_spreading_hazard = variable_struct_exists(_spread_data, "is_spreading_hazard") ? _spread_data[$ "is_spreading_hazard"] : false;
+    self.spread_chance_per_tick = variable_struct_exists(_spread_data, "spread_chance_per_tick") ? _spread_data[$ "spread_chance_per_tick"] : 0.1;
+    self.spread_interval_seconds = variable_struct_exists(_spread_data, "spread_interval_seconds") ? _spread_data[$ "spread_interval_seconds"] : 1.0;
+    self.max_spread_radius_or_tiles = variable_struct_exists(_spread_data, "max_spread_radius_or_tiles") ? _spread_data[$ "max_spread_radius_or_tiles"] : 100;
+    self.spread_target_tags = variable_struct_exists(_spread_data, "spread_target_tags") && is_array(_spread_data[$ "spread_target_tags"]) ? scr_struct_clone(_spread_data[$ "spread_target_tags"]) : [];
+    self.spread_hazard_profile_path = variable_struct_exists(_spread_data, "spread_hazard_profile_path") ? _spread_data[$ "spread_hazard_profile_path"] : self.profileIDStringRef; // Hazard may spread itself or a different one
 
     // IV. Visuals & Audio (from visual_audio_data struct or sprite_info)
-    var _visual_audio_data = variable_struct_exists(_profile, "visual_audio_data") && is_struct(_profile.visual_audio_data) ? _profile.visual_audio_data : {};
+    var _visual_audio_data = variable_struct_exists(_profile, "visual_audio_data") && is_struct(_profile[$ "visual_audio_data"]) ? _profile[$ "visual_audio_data"] : {};
 
-    self.is_initially_visible = variable_struct_exists(_visual_audio_data, "is_initially_visible") ? _visual_audio_data.is_initially_visible : true;
-    self.detection_difficulty_enum = variable_struct_exists(_visual_audio_data, "detection_difficulty_enum") ? _visual_audio_data.detection_difficulty_enum : undefined; // e.g., DetectionDifficulty.EASY
+    self.is_initially_visible = variable_struct_exists(_visual_audio_data, "is_initially_visible") ? _visual_audio_data[$ "is_initially_visible"] : true;
+    self.detection_difficulty_enum = variable_struct_exists(_visual_audio_data, "detection_difficulty_enum") ? _visual_audio_data[$ "detection_difficulty_enum"] : undefined; // e.g., DetectionDifficulty.EASY
     
-    if (variable_struct_exists(_profile, "sprite_info") && is_struct(_profile.sprite_info) && variable_struct_exists(_profile.sprite_info, "default")) {
-        sprite_index = _profile.sprite_info.default;
+    if (variable_struct_exists(_profile, "sprite_info") && is_struct(_profile[$ "sprite_info"]) && variable_struct_exists(_profile[$ "sprite_info"], "default")) {
+        sprite_index = _profile[$ "sprite_info"][$ "default"];
     } else {
-        sprite_index = spr_placeholder_hazard; // Ensure spr_placeholder_hazard exists
+        // Fallback if spr_placeholder_hazard is not defined
+        if (!variable_instance_exists(self, "spr_placeholder_hazard")) {
+             // If a generic "undefined" sprite exists, use it, otherwise don't assign (or use -1)
+             // sprite_index = -1; 
+             // Ideally we shouldn't rely on undeclared sprites.
+        } else {
+             sprite_index = spr_placeholder_hazard; 
+        }
         show_debug_message($"Warning (obj_hazard_controller): Profile '{_profile_id}' has no sprite_info.default. Using placeholder.");
     }
-    if (variable_struct_exists(_profile, "sprite_info") && is_struct(_profile.sprite_info) && variable_struct_exists(_profile.sprite_info, "image_speed")) {
-        image_speed = _profile.sprite_info.image_speed;
+    if (variable_struct_exists(_profile, "sprite_info") && is_struct(_profile[$ "sprite_info"]) && variable_struct_exists(_profile[$ "sprite_info"], "image_speed")) {
+        image_speed = _profile[$ "sprite_info"][$ "image_speed"];
     } else {
         image_speed = (sprite_index == spr_placeholder_hazard) ? 0 : 1; // Default to static for hazards unless animated
     }
-    self.animation_profile_path_active = variable_struct_exists(_visual_audio_data, "animation_profile_path_active") ? _visual_audio_data.animation_profile_path_active : undefined;
+    self.animation_profile_path_active = variable_struct_exists(_visual_audio_data, "animation_profile_path_active") ? _visual_audio_data[$ "animation_profile_path_active"] : undefined;
 
-    self.particle_system_profile_path_on_active = variable_struct_exists(_visual_audio_data, "particle_system_profile_path_on_active") ? _visual_audio_data.particle_system_profile_path_on_active : undefined;
-    self.decal_sprite_profile_path_on_terrain = variable_struct_exists(_visual_audio_data, "decal_sprite_profile_path_on_terrain") ? _visual_audio_data.decal_sprite_profile_path_on_terrain : undefined;
-    self.sound_effect_profile_path_ambient_looping = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_ambient_looping") ? _visual_audio_data.sound_effect_profile_path_ambient_looping : undefined;
-    self.sound_effect_profile_path_on_trigger_activate = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_on_trigger_activate") ? _visual_audio_data.sound_effect_profile_path_on_trigger_activate : undefined;
-    self.sound_effect_profile_path_on_damage_dealt = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_on_damage_dealt") ? _visual_audio_data.sound_effect_profile_path_on_damage_dealt : undefined;
+    self.particle_system_profile_path_on_active = variable_struct_exists(_visual_audio_data, "particle_system_profile_path_on_active") ? _visual_audio_data[$ "particle_system_profile_path_on_active"] : undefined;
+    self.decal_sprite_profile_path_on_terrain = variable_struct_exists(_visual_audio_data, "decal_sprite_profile_path_on_terrain") ? _visual_audio_data[$ "decal_sprite_profile_path_on_terrain"] : undefined;
+    self.sound_effect_profile_path_ambient_looping = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_ambient_looping") ? _visual_audio_data[$ "sound_effect_profile_path_ambient_looping"] : undefined;
+    self.sound_effect_profile_path_on_trigger_activate = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_on_trigger_activate") ? _visual_audio_data[$ "sound_effect_profile_path_on_trigger_activate"] : undefined;
+    self.sound_effect_profile_path_on_damage_dealt = variable_struct_exists(_visual_audio_data, "sound_effect_profile_path_on_damage_dealt") ? _visual_audio_data[$ "sound_effect_profile_path_on_damage_dealt"] : undefined;
 
     // V. Entity Interaction Specifics (from interaction_data struct or similar)
-    var _interaction_data = variable_struct_exists(_profile, "interaction_data") && is_struct(_profile.interaction_data) ? _profile.interaction_data : {};
+    var _interaction_data = variable_struct_exists(_profile, "interaction_data") && is_struct(_profile[$ "interaction_data"]) ? _profile[$ "interaction_data"] : {};
 
-    self.movement_modifier_enum = variable_struct_exists(_interaction_data, "movement_modifier_enum") ? _interaction_data.movement_modifier_enum : undefined; // e.g., MovementEffect.NONE
-    self.required_trait_profile_paths_to_ignore = variable_struct_exists(_interaction_data, "required_trait_profile_paths_to_ignore") && is_array(_interaction_data.required_trait_profile_paths_to_ignore) ? array_clone(_interaction_data.required_trait_profile_paths_to_ignore) : [];
-    self.affected_entity_tags = variable_struct_exists(_interaction_data, "affected_entity_tags") && is_array(_interaction_data.affected_entity_tags) ? array_clone(_interaction_data.affected_entity_tags) : ["pop_organic", "creature"]; // Default to affecting pops and creatures
+    self.movement_modifier_enum = variable_struct_exists(_interaction_data, "movement_modifier_enum") ? _interaction_data[$ "movement_modifier_enum"] : undefined; // e.g., MovementEffect.NONE
+    self.required_trait_profile_paths_to_ignore = variable_struct_exists(_interaction_data, "required_trait_profile_paths_to_ignore") && is_array(_interaction_data[$ "required_trait_profile_paths_to_ignore"]) ? scr_struct_clone(_interaction_data[$ "required_trait_profile_paths_to_ignore"]) : [];
+    self.affected_entity_tags = variable_struct_exists(_interaction_data, "affected_entity_tags") && is_array(_interaction_data[$ "affected_entity_tags"]) ? scr_struct_clone(_interaction_data[$ "affected_entity_tags"]) : ["pop_organic", "creature"]; // Default to affecting pops and creatures
 
     // --- State Variables ---
     self.is_active = false; // Hazard starts inactive unless trigger is ALWAYS_ACTIVE or similar
@@ -125,7 +141,8 @@ initialize_from_profile = function() {
     self.current_damage_tick_timer_steps = self.damage_tick_rate_seconds * game_get_speed(gamespeed_fps);
     self.current_spread_tick_timer_steps = self.spread_interval_seconds * game_get_speed(gamespeed_fps);
     self.current_cooldown_timer_steps = 0;
-    self.entities_in_area = ds_list_create(); // To track entities currently affected
+    self.entities_inside = ds_list_create(); // To track entities currently affected
+    self.status_effects_applied = []; // Initialize to empty to prevent crash in apply_effects (TODO: Resolve from paths)
 
     show_debug_message($"Hazard '{_profile_id}' initialized successfully.");
 
@@ -154,7 +171,7 @@ self.activate_hazard = function() {
     if (self.is_active) return;
     self.is_active = true;
     self.current_lifespan_timer = self.lifespan_seconds_active * game_get_speed(gamespeed_fps);
-    debug_log($"Hazard '{self.hazard_name}' activated.", "Hazard:State", "orange");
+    debug_log($"Hazard '{self.display_name}' activated.", "Hazard:State", "orange");
     // TODO: Play activation sound/visuals (e.g., self.sound_effect_on_trigger_activate, particle_system_on_active)
     // TODO: If damage_on_enter_amount > 0, apply to entities already inside (though typically this is for new entries)
 };
@@ -166,7 +183,7 @@ self.deactivate_hazard = function() {
     self.is_active = false;
     self.current_cooldown_timer = self.cooldown_seconds_after_deactivation * game_get_speed(gamespeed_fps);
     ds_list_clear(self.entities_inside); // Clear entities when deactivated
-    debug_log($"Hazard '{self.hazard_name}' deactivated. Cooldown: {self.cooldown_seconds_after_deactivation}s.", "Hazard:State", "yellow");
+    debug_log($"Hazard '{self.display_name}' deactivated. Cooldown: {self.cooldown_seconds_after_deactivation}s.", "Hazard:State", "yellow");
     // TODO: Stop ambient sounds/visuals
 };
 
@@ -197,7 +214,9 @@ self.apply_effects_to_entity = function(entity_instance_id) {
     if (self.damage_per_tick_amount > 0) {
         if (method_exists(entity_instance_id, "take_damage")) {
             entity_instance_id.take_damage(self.damage_per_tick_amount, self.damage_type_enum, id);
-            if (self.sound_effect_on_damage_dealt != undefined) audio_play_sound(self.sound_effect_on_damage_dealt, 0, false);
+            if (variable_instance_exists(self, "sound_effect_on_damage_dealt") && self.sound_effect_on_damage_dealt != undefined) {
+                 audio_play_sound(self.sound_effect_on_damage_dealt, 0, false);
+            }
         }
     }
 
@@ -208,7 +227,7 @@ self.apply_effects_to_entity = function(entity_instance_id) {
             if (method_exists(entity_instance_id, "apply_status_effect")) {
                 // entity_instance_id.apply_status_effect(_effect_data.effect_enum, _effect_data.potency, _effect_data.duration_seconds_on_entity, _effect_data.stacking_limit);
                 // TODO: Uncomment and ensure apply_status_effect method exists and matches parameters
-                 debug_log($"Applied status '{_effect_data.effect_enum}' to {entity_instance_id} from '{self.hazard_name}'", "Hazard:Effect", "magenta");
+                 debug_log($"Applied status '{_effect_data.effect_enum}' to {entity_instance_id} from '{self.display_name}'", "Hazard:Effect", "magenta");
             }
         }
     }
@@ -220,7 +239,7 @@ self.apply_effects_to_entity = function(entity_instance_id) {
             // entity_instance_id.x += self.force_applied_vector.x;
             // entity_instance_id.y += self.force_applied_vector.y;
             // TODO: Implement proper force application (e.g., add to a velocity vector on the entity)
-            debug_log($"Applied force ({self.force_applied_vector.x}, {self.force_applied_vector.y}) to {entity_instance_id} from '{self.hazard_name}'", "Hazard:Effect", "magenta");
+            debug_log($"Applied force ({self.force_applied_vector.x}, {self.force_applied_vector.y}) to {entity_instance_id} from '{self.display_name}'", "Hazard:Effect", "magenta");
         }
     }
 

@@ -61,3 +61,8 @@ function _get_sprite_asset(sprite_asset_name_from_data, fallback_asset = spr_pla
             }
         } else {
             show_debug_message($"WARNING (obj_creature_ai_controller Create for '{_display_name_for_log}'): Sprite asset name '{sprite_asset_name_from_data}' NOT FOUND. Using fallback '{string(fallback_asset)}'.");
+            return fallback_asset;
+        }
+    }
+    return fallback_asset;
+};

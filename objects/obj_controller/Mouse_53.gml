@@ -24,8 +24,8 @@ var _gui_my = device_mouse_y_to_gui(0);
 // This assumes your camera setup correctly translates GUI to world.
 // If using view_get_xport/yport and view_wport/hport for scaling, adjust accordingly.
 // For simplicity, if camera is 1:1 with GUI and no complex port scaling:
-var _world_mx = mouse_x; 
-var _world_my = mouse_y;
+var _world_mx = device_mouse_x(0); 
+var _world_my = device_mouse_y(0);
 #endregion
 
 // =========================================================================

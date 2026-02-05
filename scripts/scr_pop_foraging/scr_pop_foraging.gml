@@ -13,10 +13,9 @@
 ///     Usage:         Called by scr_pop_behavior when state is PopState.FORAGING.
 ///     Usage:         Called by scr_pop_behavior when state is EntityState.FORAGING. // Updated enum
 ///     Dependencies:  scr_interaction_slot_get_world_pos, scr_interaction_slot_acquire,
-///                    scr_update_walk_sprite, scr_inventory_struct_add, PopState (enum),
-///     Dependencies:  scr_interaction_slot_get_world_pos, scr_interaction_slot_acquire,
 ///                    scr_update_walk_sprite, scr_inventory_struct_add, EntityState (enum), // Updated enum
 ///                    Instance variables: target_interaction_object_id, target_interaction_slot_index, etc.
+/// @self obj_pop
 
 function scr_pop_foraging() { // Consider renaming to scr_pop_perform_interaction() or scr_pop_work_at_slot()
 

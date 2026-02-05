@@ -317,8 +317,39 @@ enum FactionStanding { // How other factions view the player's faction
 }
 #endregion
 
-#region 2.6 Game State & System Enums
 // Add any additional game state or system-related enums here
+enum HazardTrigger {
+    ALWAYS_ACTIVE,
+    ON_TOUCH,
+    ON_PROXIMITY,
+    ON_TIMER,
+    ON_SIGNAL
+}
+
+enum AreaShape {
+    CIRCLE,
+    SQUARE,
+    RECTANGLE,
+    CONE
+}
+
+enum DetectionDifficulty {
+    TRIVIAL,
+    EASY,
+    NORMAL,
+    HARD,
+    IMPOSSIBLE,
+    NONE
+}
+
+enum MovementEffect {
+    NONE,
+    SLOW,
+    STUN,
+    SNARE,
+    KNOCKBACK,
+    PULL
+}
 #endregion
 
 #region 2.7 Other Constants & Macros (If any)

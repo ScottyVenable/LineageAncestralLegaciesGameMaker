@@ -50,3 +50,8 @@ var _get_sprite_asset = function(sprite_asset_name_from_data, fallback_asset = s
             }
         } else {
             show_debug_message($"WARNING (obj_structure_controller Create for '{_display_name_for_log}'): Sprite asset name '{sprite_asset_name_from_data}' NOT FOUND. Using fallback '{string(fallback_asset)}'.");
+            return fallback_asset;
+        }
+    }
+    return fallback_asset;
+};

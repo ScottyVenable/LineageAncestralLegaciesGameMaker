@@ -7,7 +7,14 @@
 ///    Summary:         Sets up basic pop structure and generates detailed attributes.
 ///    Usage:           Automatically called when an obj_pop instance is created.
 ///    Version:        1.10 - May 22, 2025 (Updated life stage assignment logic and ensured metadata reflects current date)
-///    Dependencies:  EntityState (enum), scr_generate_pop_details, spr_man_idle.
+///    Dependencies:    scr_item_definitions_init, scr_spawn_entity
+//
+// ============================================================================
+// INJECTED VARIABLES (Initialized to undefined to prevent IDE errors)
+// These are typically set by scr_spawn_entity immediately after creation.
+// entity_data = undefined;
+// entity_type_id = undefined;
+// ============================================================================
 
 // =========================================================================
 // 1. CORE GAMEPLAY STATE & FLAGS
@@ -152,31 +159,31 @@ show_debug_message($"INFO (obj_pop Create): Pop (ID: {self.entity_type_id}) assi
 var _debug_sprite_context = $"Pop ID: {self.entity_type_id}, Instance: {id}";
 
 if (struct_exists(_data, "sprite_info")) {
-    var _sprite_info = _data.sprite_info;
+    var _sprite_info = _data[$ "sprite_info"];
     var _fallback_sprite_asset = spr_pop_man_idle; // Default fallback if a specific placeholder isn't available
 
     // Idle Sprite
     var _idle_sprite_name_key = (self.sex == "male") ?
-        (struct_exists(_sprite_info, "male_idle") ? _sprite_info.male_idle : undefined) :
-        (struct_exists(_sprite_info, "female_idle") ? _sprite_info.female_idle : undefined);
+        (struct_exists(_sprite_info, "male_idle") ? _sprite_info[$ "male_idle"] : undefined) :
+        (struct_exists(_sprite_info, "female_idle") ? _sprite_info[$ "female_idle"] : undefined);
     self.spr_idle = get_sprite_asset_safely(_idle_sprite_name_key, _fallback_sprite_asset, _debug_sprite_context);
     self.sprite_index = self.spr_idle; // Set current sprite to idle
 
     // Walk Sprite Prefix String
     self.spr_walk_prefix_string = (self.sex == "male") ?
-        (struct_exists(_sprite_info, "male_walk_prefix") ? _sprite_info.male_walk_prefix : undefined) :
-        (struct_exists(_sprite_info, "female_walk_prefix") ? _sprite_info.female_walk_prefix : undefined);
+        (struct_exists(_sprite_info, "male_walk_prefix") ? _sprite_info[$ "male_walk_prefix"] : undefined) :
+        (struct_exists(_sprite_info, "female_walk_prefix") ? _sprite_info[$ "female_walk_prefix"] : undefined);
     // Note: spr_walk_prefix_string is a name prefix, not a direct asset. No get_sprite_asset_safely needed here.
     if (is_undefined(self.spr_walk_prefix_string)) {
          // Use type_tag for context if available, else fallback to "Pop"
-         var _type_context = variable_struct_exists(_data, "type_tag") ? _data.type_tag : "Pop";
+         var _type_context = variable_struct_exists(_data, "type_tag") ? _data[$ "type_tag"] : "Pop";
          show_debug_message($"WARNING (obj_pop Create for {_type_context}): Walk sprite prefix string not found in sprite_info for sex '{self.sex}'. Movement animations may fail.");
     }
 
     // Portrait Sprite
     var _portrait_sprite_name_key = (self.sex == "male") ?
-        (struct_exists(_sprite_info, "male_portrait") ? _sprite_info.male_portrait : undefined) :
-        (struct_exists(_sprite_info, "female_portrait") ? _sprite_info.female_portrait : undefined);
+        (struct_exists(_sprite_info, "male_portrait") ? _sprite_info[$ "male_portrait"] : undefined) :
+        (struct_exists(_sprite_info, "female_portrait") ? _sprite_info[$ "female_portrait"] : undefined);
     self.spr_portrait = get_sprite_asset_safely(_portrait_sprite_name_key, self.spr_idle, _debug_sprite_context); // Fallback to actual idle sprite if no portrait
 
     // Death Sprite (Example, add to sprite_info in database if needed)
@@ -187,7 +194,7 @@ if (struct_exists(_data, "sprite_info")) {
 
 } else {
     // Use type_tag for context if available, else fallback to "Pop"
-    var _type_context = variable_struct_exists(_data, "type_tag") ? _data.type_tag : "Pop";
+    var _type_context = variable_struct_exists(_data, "type_tag") ? _data[$ "type_tag"] : "Pop";
     show_debug_message($"WARNING (obj_pop Create for {_type_context}): 'sprite_info' struct not found in profile. Sprites will use Create event defaults or be undefined.");
     self.spr_idle = spr_pop_man_idle; // Fallback to a default sprite
     self.sprite_index = self.spr_idle;
@@ -200,8 +207,8 @@ self.current_state = EntityState.IDLE
 self.image_index = 0;
 self.image_speed = (is_undefined(self.sprite_index) || self.sprite_index == noone) ? 0 : 1;
 // Base scale from profile, or default to 1 if not specified
-self.image_xscale = struct_exists(_data, "base_scale") ? _data.base_scale : 1;
-self.image_yscale = struct_exists(_data, "base_scale") ? _data.base_scale : 1;
+self.image_xscale = struct_exists(_data, "base_scale") ? _data[$ "base_scale"] : 1;
+self.image_yscale = struct_exists(_data, "base_scale") ? _data[$ "base_scale"] : 1;
 
 
 // --- 3. Name Generation ---
@@ -217,76 +224,69 @@ if (script_exists(asset_get_index("scr_name_generator"))) {
 // pop_identifier_string is used for more detailed logging/identification
 self.pop_identifier_string = self.pop_name + " [InstanceID:" + string(id) + ", ProfileID:" + string(self.entity_type_id) + "]";
 
-// --- 4. Core Attributes & Stats (from _data.StatsBase and _data.AbilityScoreRanges) ---
+// --- 4. Core Attributes & Stats (from _data.StatsBase and _data[$ "AbilityScoreRanges"]) ---
 // Initialize base stats, abilities, health, speed, etc.
 
 // --- 4.a Ability Scores ---
 // Roll ability scores based on ranges in the profile
 self.ability_scores = {}; // Initialize as an empty struct
-if (struct_exists(_data, "AbilityScoreRanges")) {
-    var _ranges = _data.AbilityScoreRanges;
-    var _score_names = variable_struct_get_names(_ranges);
-    for (var i = 0; i < array_length(_score_names); i++) {
-        var _name = _score_names[i]; // e.g., "Strength"
-        if (struct_exists(_ranges[$ _name], "min") && struct_exists(_ranges[$ _name], "max")) {
-            self.ability_scores[$ _name] = irandom_range(_ranges[$ _name].min, _ranges[$ _name].max);
-        } else {
-            self.ability_scores[$ _name] = 10; // Default if range malformed
-            show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): Malformed range for ability '{_name}'. Defaulting to 10.");
-        }
-    }
+if (variable_struct_exists(_data, "base_ability_scores")) {
+    self.ability_scores = _data[$ "base_ability_scores"];
 } else {
-    show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): 'AbilityScoreRanges' not in profile. Abilities not initialized from profile. Consider adding default scores.");
-    // Example default scores if profile is missing this entirely:
-    // self.ability_scores.Strength = 10; self.ability_scores.Dexterity = 10; // etc.
+    if (struct_exists(_data, "AbilityScoreRanges")) {
+        var _ranges = _data[$ "AbilityScoreRanges"];
+        var _score_names = variable_struct_get_names(_ranges);
+        for (var i = 0; i < array_length(_score_names); i++) {
+            var _name = _score_names[i]; // e.g., "Strength"
+            if (struct_exists(_ranges[$ _name], "min") && struct_exists(_ranges[$ _name], "max")) {
+                self.ability_scores[$ _name] = irandom_range(_ranges[$ _name].min, _ranges[$ _name].max);
+            } else {
+                self.ability_scores[$ _name] = 10; // Default if range malformed
+                show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): Malformed range for ability '{_name}'. Defaulting to 10.");
+            }
+        }
+    } else {
+        show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): 'AbilityScoreRanges' not in profile. Abilities not initialized from profile. Consider adding default scores.");
+        // Example default scores if profile is missing this entirely:
+        // self.ability_scores.Strength = 10; self.ability_scores.Dexterity = 10; // etc.
+    }
 }
 
-// --- 4.b Base Stats (Movement Speed, Perception) ---
+// --- 4.b Core Stats (Speed, Perception) ---
 self.stats = {}; // Initialize a struct to hold all stats for clarity
 
-if (struct_exists(_data, "StatsBase")) {
-    var _stats_base = _data.StatsBase;
+// Base speeds from profile
+if (struct_exists(_data, "StatsBase") && struct_exists(_data[$ "StatsBase"], "Movement")) {
+    self.stats.walk_speed = struct_exists(_data[$ "StatsBase"][$ "Movement"], "walk_speed") ? _data[$ "StatsBase"][$ "Movement"][$ "walk_speed"] : 1.0;
+    self.stats.run_speed = struct_exists(_data[$ "StatsBase"][$ "Movement"], "run_speed") ? _data[$ "StatsBase"][$ "Movement"][$ "run_speed"] : 1.5;
+    self.speed = self.stats.walk_speed;
+} else {
+    show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): No 'StatsBase.Movement' in profile. Using fallback speeds.");
+    self.stats.walk_speed = 1.0;
+    self.stats.run_speed = 1.5;
+    self.speed = self.stats.walk_speed;
+}
 
-    // Movement Speed
-    if (struct_exists(_stats_base, "Speed") && struct_exists(_stats_base.Speed, "walk")) {
-        self.stats.walk_speed = _stats_base.Speed.walk; // Using 'walk' as the default base speed
-    } else {
-        self.stats.walk_speed = 1.0; // Default speed if not in profile
-        show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): No 'StatsBase.Speed.walk' in profile. Using fallback speed: {self.stats.walk_speed}.");
-    }
-    // Run Speed (similar to walk_speed)
-    if (struct_exists(_stats_base, "Speed") && struct_exists(_stats_base.Speed, "run")) {
-        self.stats.run_speed = _stats_base.Speed.run;
-    } else {
-        // Fallback: if run speed is not defined, make it a multiple of walk_speed or a default.
-        // For example, 1.5 times the walk_speed, or a fixed value if walk_speed itself is a fallback.
-        self.stats.run_speed = self.stats.walk_speed * 1.5; 
-        show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): No 'StatsBase.Speed.run' in profile. Using fallback speed: {self.stats.run_speed} (1.5x walk_speed).");
-    }
-    self.speed = self.stats.walk_speed; // Set the instance's current speed to walk_speed by default
-
-    // Perception Radius
-    if (struct_exists(_stats_base, "Perception") && struct_exists(_stats_base.Perception, "base_radius")) {
-        self.stats.perception_radius_pixels = _stats_base.Perception.base_radius;
-    } else {
-        self.stats.perception_radius_pixels = 100; // Default perception
-        show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): No 'StatsBase.Perception.base_radius' in profile. Using fallback: {self.stats.perception_radius_pixels}.");
+// Perception Radius
+if (struct_exists(_data, "StatsBase") && struct_exists(_data[$ "StatsBase"], "Perception")) {
+    self.stats.perception_radius_pixels = struct_exists(_data[$ "StatsBase"][$ "Perception"], "base_radius") ? _data[$ "StatsBase"][$ "Perception"][$ "base_radius"] : 100;
+    if (self.stats.perception_radius_pixels <= 0) {
+        self.stats.perception_radius_pixels = 100;
+        show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): Invalid Perception radius. Defaulting to 100.");
     }
 } else {
-    show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): 'StatsBase' not found in profile. Core stats like speed and perception will use fallbacks.");
-    self.stats.walk_speed = 1.0;
-    self.stats.run_speed = 1.5; // Default run_speed if StatsBase is missing
-    self.speed = self.stats.walk_speed;
+    show_debug_message($"WARNING (obj_pop Create for {self.pop_identifier_string}): No 'StatsBase.Perception' in profile. Using fallback perception: 100.");
     self.stats.perception_radius_pixels = 100;
 }
+
 
 // --- 4.c Derived Stats (Health, Carrying Capacity) ---
 // Health
 var _base_max_health = 50; // Default base health
-if (struct_exists(_data, "StatsBase") && struct_exists(_data.StatsBase, "Health") && struct_exists(_data.StatsBase.Health, "base_max")) {
-    _base_max_health = _data.StatsBase.Health.base_max;
+if (struct_exists(_data, "StatsBase") && struct_exists(_data[$ "StatsBase"], "Health") && struct_exists(_data[$ "StatsBase"][$ "Health"], "base_max")) {
+    _base_max_health = _data[$ "StatsBase"][$ "Health"][$ "base_max"];
 }
-var _constitution_score = struct_exists(self.ability_scores, "Constitution") ? self.ability_scores.Constitution : 10;
+var _constitution_score = struct_exists(self.ability_scores, "Constitution") ? self.ability_scores[$ "Constitution"] : 10;
 // Example formula: Max Health = Base + (Constitution Score - 10) * 5 (adjust multiplier as needed)
 self.stats.max_health = _base_max_health + (_constitution_score - 10) * 5;
 self.stats.current_health = self.stats.max_health; // Start with full health
@@ -294,12 +294,12 @@ self.stats.current_health = self.stats.max_health; // Start with full health
 // Carrying Capacity
 var _base_carrying_capacity = 0;
 var _strength_multiplier_for_capacity = 2;
-if (struct_exists(_data, "StatsBase") && struct_exists(_data.StatsBase, "carrying_capacity_formula")) {
-    var _formula = _data.StatsBase.carrying_capacity_formula;
-    if (struct_exists(_formula, "base_value")) _base_carrying_capacity = _formula.base_value;
-    if (struct_exists(_formula, "strength_multiplier")) _strength_multiplier_for_capacity = _formula.strength_multiplier;
+if (struct_exists(_data, "StatsBase") && struct_exists(_data[$ "StatsBase"], "carrying_capacity_formula")) {
+    var _formula = _data[$ "StatsBase"][$ "carrying_capacity_formula"];
+    if (struct_exists(_formula, "base_value")) _base_carrying_capacity = _formula[$ "base_value"];
+    if (struct_exists(_formula, "strength_multiplier")) _strength_multiplier_for_capacity = _formula[$ "strength_multiplier"];
 }
-var _strength_score = struct_exists(self.ability_scores, "Strength") ? self.ability_scores.Strength : 10;
+var _strength_score = struct_exists(self.ability_scores, "Strength") ? self.ability_scores[$ "Strength"] : 10;
 self.stats.max_carrying_capacity = _base_carrying_capacity + (_strength_score * _strength_multiplier_for_capacity);
 
 
@@ -307,13 +307,16 @@ self.stats.max_carrying_capacity = _base_carrying_capacity + (_strength_score * 
 // Sets initial skill aptitudes based on the pop's profile.
 self.skills_data = {}; // Initialize as an empty struct for skill data (levels, xp, aptitudes)
 if (struct_exists(_data, "base_skill_aptitudes")) {
-    var _aptitudes_profile = _data.base_skill_aptitudes; // e.g., { global.GameData.Skills.Type.FORAGING: 4 }
+    var _aptitudes_profile = _data[$ "base_skill_aptitudes"]; // e.g., { global.GameData.Skills.Type.FORAGING: 4 }
     var _skill_enum_keys_as_strings = variable_struct_get_names(_aptitudes_profile);
 
     for (var i = 0; i < array_length(_skill_enum_keys_as_strings); i++) {
-        var _skill_key_str = _skill_enum_keys_as_strings[i]; // This is the string representation of the enum value, e.g., "0" for FORAGING
-        var _aptitude_value = _aptitudes_profile[$ _skill_key_str];
-        var _skill_enum_val = real(_skill_key_str); // Convert string key to number for use as enum
+        var _skill_name_key = _skill_enum_keys_as_strings[i];
+        var _aptitude_value = _aptitudes_profile[$ _skill_name_key];
+
+        // Ensure the skill is valid in our global definitions
+        // (Assuming we have a way to validate, else just trust the data)
+        var _skill_enum_val = real(_skill_name_key); // Convert string key to number for use as enum
 
         // Store skill data using the numeric enum value as the key for self.skills_data
         self.skills_data[$ _skill_enum_val] = {
@@ -333,8 +336,8 @@ if (struct_exists(_data, "base_skill_aptitudes")) {
 // --- 6. Traits Initialization ---
 // Assigns innate traits from the profile and applies their initial effects.
 self.traits_list = ds_list_create(); // Initialize a list to store trait profile structs
-if (struct_exists(_data, "innate_trait_profile_paths") && is_array(_data.innate_trait_profile_paths)) {
-    var _trait_id_enum_array = _data.innate_trait_profile_paths; // e.g., [ID.TRAIT_KEEN_EYES, ID.TRAIT_STRONG_BACK]
+if (struct_exists(_data, "innate_trait_profile_paths") && is_array(_data[$ "innate_trait_profile_paths"])) {
+    var _trait_id_enum_array = _data[$ "innate_trait_profile_paths"]; // e.g., [ID.TRAIT_KEEN_EYES, ID.TRAIT_STRONG_BACK]
     for (var i = 0; i < array_length(_trait_id_enum_array); i++) {
         var _trait_id_enum = _trait_id_enum_array[i]; // This is an enum value from ID, e.g., ID.TRAIT_KEEN_EYES
         var _trait_profile_data = GetProfileFromID(_trait_id_enum); // Use the global helper
@@ -371,22 +374,28 @@ if (struct_exists(self.stats, "max_carrying_capacity")) { // This is now calcula
 self.hauling_threshold = max(5, self.max_inventory_capacity); // Haul when full, or at least 5 if capacity is tiny.
 // TODO: Consider making hauling_threshold configurable in the entity profile.
 
-// --- 8. Behavior Settings Initialization (from _data.behavior_settings) ---
+// --- 8. Behavior Settings Initialization (from _data[$ "behavior_settings"]) ---
+// Note: Work preferences might need to be initialized if the AI system relies on them.
+if (struct_exists(_data, "ai_behavior_profile")) {
+    self.ai_profile = _data[$ "ai_behavior_profile"];
+} else {
+    self.ai_profile = "default_pop";
+}
 self.behavior_settings = {}; // Initialize struct to hold behavior settings
 
 if (struct_exists(_data, "behavior_settings")) {
-    var _bs = _data.behavior_settings; // Alias to the profile's behavior settings
+    var _bs = _data[$ "behavior_settings"]; // Alias to the profile's behavior settings
 
     // Idle State Variables
-    self.behavior_settings.idle_min_seconds = struct_exists(_bs, "idle_min_seconds") ? _bs.idle_min_seconds : 2.0;
-    self.behavior_settings.idle_max_seconds = struct_exists(_bs, "idle_max_seconds") ? _bs.idle_max_seconds : 4.0;
-    self.behavior_settings.after_command_idle_seconds = struct_exists(_bs, "after_command_idle_seconds") ? _bs.after_command_idle_seconds : 0.5;
+    self.behavior_settings.idle_min_seconds = struct_exists(_bs, "idle_min_seconds") ? _bs[$ "idle_min_seconds"] : 2.0;
+    self.behavior_settings.idle_max_seconds = struct_exists(_bs, "idle_max_seconds") ? _bs[$ "idle_max_seconds"] : 4.0;
+    self.behavior_settings.after_command_idle_seconds = struct_exists(_bs, "after_command_idle_seconds") ? _bs[$ "after_command_idle_seconds"] : 0.5;
 
     // Wander State Variables
-    self.behavior_settings.wander_min_points = struct_exists(_bs, "wander_min_points") ? _bs.wander_min_points : 1;
-    self.behavior_settings.wander_max_points = struct_exists(_bs, "wander_max_points") ? _bs.wander_max_points : 3;
-    self.behavior_settings.wander_min_distance_pixels = struct_exists(_bs, "wander_min_distance_pixels") ? _bs.wander_min_distance_pixels : 50;
-    self.behavior_settings.wander_max_distance_pixels = struct_exists(_bs, "wander_max_distance_pixels") ? _bs.wander_max_distance_pixels : 150;
+    self.behavior_settings.wander_min_points = struct_exists(_bs, "wander_min_points") ? _bs[$ "wander_min_points"] : 1;
+    self.behavior_settings.wander_max_points = struct_exists(_bs, "wander_max_points") ? _bs[$ "wander_max_points"] : 3;
+    self.behavior_settings.wander_min_distance_pixels = struct_exists(_bs, "wander_min_distance_pixels") ? _bs[$ "wander_min_distance_pixels"] : 50;
+    self.behavior_settings.wander_max_distance_pixels = struct_exists(_bs, "wander_max_distance_pixels") ? _bs[$ "wander_max_distance_pixels"] : 150;
 
     // Foraging State Variables (Example - add to profile if needed)
     // self.behavior_settings.forage_duration_seconds = struct_exists(_bs, "forage_duration_seconds") ? _bs.forage_duration_seconds : 10;
@@ -444,7 +453,7 @@ var _trait_names_debug = "";
 if (ds_exists(self.traits_list, ds_type_list)) {
     for(var _i = 0; _i < ds_list_size(self.traits_list); _i++) {
         var _trait_data = self.traits_list[| _i];
-        _trait_names_debug += $"{_trait_data.display_name_key}; ";
+        _trait_names_debug += $"{_trait_data[$ "display_name_key"]}; ";
     }
 }
 show_debug_message($"DEBUG TRAITS for {self.pop_identifier_string}: {_trait_names_debug}");

@@ -4,7 +4,7 @@ function scr_pop_behavior() {
             scr_pop_idle();
             break;
         case EntityState.WANDERING:
-            scr_pop_wandering();
+            scr_pop_wandering(id);
             break;
         case EntityState.COMMANDED:
             scr_pop_commanded();

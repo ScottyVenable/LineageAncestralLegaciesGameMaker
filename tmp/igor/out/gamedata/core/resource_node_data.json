@@ -1,0 +1,34 @@
+{
+    "nodes": {
+        "NODE_TREE_OAK": {
+            "type_tag": "NODE_TREE_OAK",
+            "display_name": "Oak Tree",
+            "resource_type": "WOOD",
+            "resource_amount": 100,
+            "regeneration_time": 300,
+            "harvest_tool_type": "AXE",
+            "harvest_difficulty": 1,
+            "sprite": "spr_tree_oak"
+        },
+        "NODE_ROCK_IRON": {
+            "type_tag": "NODE_ROCK_IRON",
+            "display_name": "Iron Deposit",
+            "resource_type": "ORE_IRON",
+            "resource_amount": 50,
+            "regeneration_time": 600,
+            "harvest_tool_type": "PICKAXE",
+            "harvest_difficulty": 2,
+            "sprite": "spr_rock_iron"
+        },
+        "NODE_BUSH_BERRY": {
+            "type_tag": "NODE_BUSH_BERRY",
+            "display_name": "Berry Bush",
+            "resource_type": "FOOD",
+            "resource_amount": 20,
+            "regeneration_time": 120,
+            "harvest_tool_type": "NONE",
+            "harvest_difficulty": 0,
+            "sprite": "spr_bush_berry"
+        }
+    }
+}

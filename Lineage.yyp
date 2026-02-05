@@ -2,7 +2,7 @@
   "$GMProject":"v1",
   "%Name":"Lineage",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[],
@@ -88,17 +88,11 @@
     {"$GMIncludedFile":"","%Name":"recipes.json","CopyToMask":-1,"filePath":"datafiles/gamedata/core","name":"recipes.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"resource_node_data.json","CopyToMask":-1,"filePath":"datafiles/gamedata/core","name":"resource_node_data.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
     {"$GMIncludedFile":"","%Name":"structure_data.json","CopyToMask":-1,"filePath":"datafiles/gamedata/core","name":"structure_data.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"default_item_data.json","CopyToMask":-1,"filePath":"datafiles/gamedata/default","name":"default_item_data.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"default_recipes.json","CopyToMask":-1,"filePath":"datafiles/gamedata/default","name":"default_recipes.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"default_resource_node_data.json","CopyToMask":-1,"filePath":"datafiles/gamedata/default","name":"default_resource_node_data.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"example_mod.json","CopyToMask":-1,"filePath":"datafiles/mods","name":"example_mod.json","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"untitled - sfx_man_command.wav","CopyToMask":-1,"filePath":"datafiles/sfx/pops/man/commanded","name":"untitled - sfx_man_command.wav","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"untitled - sfx_man_command.wav","CopyToMask":-1,"filePath":"datafiles/sfx/Pops/man/commanded","name":"untitled - sfx_man_command.wav","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
   ],
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.13.1.193",
+    "IDEVersion":"2024.14.2.213",
   },
   "name":"Lineage",
   "resources":[
@@ -157,6 +151,7 @@
     {"id":{"name":"scr_formation_get_name","path":"scripts/scr_formation_get_name/scr_formation_get_name.yy",},},
     {"id":{"name":"scr_formations","path":"scripts/scr_formations/scr_formations.yy",},},
     {"id":{"name":"scr_generate_pop_details","path":"scripts/scr_generate_pop_details/scr_generate_pop_details.yy",},},
+    {"id":{"name":"scr_generate_pop_name","path":"scripts/scr_generate_pop_name/scr_generate_pop_name.yy",},},
     {"id":{"name":"scr_get_pop_identifier_string","path":"scripts/scr_get_pop_identifier_string/scr_get_pop_identifier_string.yy",},},
     {"id":{"name":"scr_get_state_name","path":"scripts/scr_get_state_name/scr_get_state_name.yy",},},
     {"id":{"name":"scr_interaction_slot_get_by_pop","path":"scripts/scr_interaction_slot_get_by_pop/scr_interaction_slot_get_by_pop.yy",},},

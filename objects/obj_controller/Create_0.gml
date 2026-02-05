@@ -17,6 +17,9 @@
 // 0. GLOBAL VARIABLES INITIALIZATION (Ensure before any pops are created)
 // ============================================================================
 #region 0.1 Initialize Global Variables
+// Disable antialiasing for pixel-perfect rendering
+gpu_set_texfilter(false);
+
 // Ensure the first_load variable is initialized
 // --- Ensure the game database is initialized before using global.GameData ---
 if (!variable_global_exists("GameData") || !is_struct(global.GameData)) {
@@ -45,6 +48,7 @@ if (!variable_global_exists("hover_detection_distance")) {
 
 // --- Ensure selected_pop is always defined to prevent runtime errors ---
 selected_pop = noone; // This prevents 'not set before reading' errors when checking or using selected_pop
+
 #endregion
 
 // ============================================================================
@@ -165,37 +169,29 @@ if (!instance_exists(obj_entity_state_controller)) {
 if (variable_global_exists("GameData") && is_struct(global.GameData) &&
     variable_struct_exists(global.GameData, "name_data") && is_struct(global.GameData.name_data)) {
 
-    // Safely access male_prefixes
-    if (variable_struct_exists(global.GameData.name_data, "male_prefixes")) {
-        global.male_prefixes = global.GameData.name_data.male_prefixes;
-    } else {
-        global.male_prefixes = [];
-        debug_log("WARNING: global.GameData.name_data.male_prefixes not found. Using empty list.", "obj_controller:Create", "yellow");
-    }
+    // Safely access name components using variable_struct_get to avoid IDE undeclared variable errors on struct properties
+    global.male_prefixes = variable_struct_exists(global.GameData.name_data, "male_prefixes") 
+                           ? global.GameData.name_data.male_prefixes 
+                           : [];
 
-    // Safely access male_suffixes
-    if (variable_struct_exists(global.GameData.name_data, "male_suffixes")) {
-        global.male_suffixes = global.GameData.name_data.male_suffixes;
-    } else {
-        global.male_suffixes = [];
-        debug_log("WARNING: global.GameData.name_data.male_suffixes not found. Using empty list.", "obj_controller:Create", "yellow");
-    }
+    global.male_suffixes = variable_struct_exists(global.GameData.name_data, "male_suffixes") 
+                           ? global.GameData.name_data.male_suffixes 
+                           : [];
 
-    // Safely access female_prefixes
-    if (variable_struct_exists(global.GameData.name_data, "female_prefixes")) {
-        global.female_prefixes = global.GameData.name_data.female_prefixes;
-    } else {
-        global.female_prefixes = [];
-        debug_log("WARNING: global.GameData.name_data.female_prefixes not found. Using empty list.", "obj_controller:Create", "yellow");
-    }
+    global.female_prefixes = variable_struct_exists(global.GameData.name_data, "female_prefixes") 
+                             ? global.GameData.name_data.female_prefixes 
+                             : [];
 
-    // Safely access female_suffixes
-    if (variable_struct_exists(global.GameData.name_data, "female_suffixes")) {
-        global.female_suffixes = global.GameData.name_data.female_suffixes;
-    } else {
-        global.female_suffixes = [];
-        debug_log("WARNING: global.GameData.name_data.female_suffixes not found. Using empty list.", "obj_controller:Create", "yellow");
-    }
+    global.female_suffixes = variable_struct_exists(global.GameData.name_data, "female_suffixes") 
+                             ? global.GameData.name_data.female_suffixes 
+                             : [];
+
+    // Debug logging for empty lists
+    if (array_length(global.male_prefixes) == 0) debug_log("WARNING: male_prefixes list is empty.", "obj_controller:Create", "yellow");
+    if (array_length(global.male_suffixes) == 0) debug_log("WARNING: male_suffixes list is empty.", "obj_controller:Create", "yellow");
+    if (array_length(global.female_prefixes) == 0) debug_log("WARNING: female_prefixes list is empty.", "obj_controller:Create", "yellow");
+    if (array_length(global.female_suffixes) == 0) debug_log("WARNING: female_suffixes list is empty.", "obj_controller:Create", "yellow");
+
     
     // Check if any names were actually loaded
     if (array_length(global.male_prefixes) == 0 && array_length(global.female_prefixes) == 0) {
